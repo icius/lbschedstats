@@ -53,15 +53,13 @@ if ($CFG::CFG{'modules'}{'blocks_by_hour'} == 1) {
 
   # Blocks Created and Destroyed by hour today
 
-  #$sql = 'SELECT extract(hour from date) hour, sum(if (type > 0,1,0)) created,  sum(if (type = 0,1,0)) destroyed FROM `lb-klaumatopia` where date > timestamp( date (now())) GROUP BY hour'; 
-
-  $sql = 'SELECT extract(hour from date) hour, sum(if (type > 0,1,0)) created,  sum(if (type = 0,1,0)) destroyed FROM `'.$CFG::CFG{'lb_table'}.'` GROUP BY hour'; 
+  $sql = 'SELECT extract(hour from date) hour, sum(if (type > 0,1,0)) created,  sum(if (type = 0,1,0)) destroyed FROM `'.$CFG::CFG{'lb_table'}.'` where date > timestamp( date (now())) GROUP BY hour'; 
 
 
   $sth = $dbh->prepare($sql);
   $sth->execute();
 
-  open OUTFILE, ">", "data/blocks_hour_today.csv" or die $!;
+  open OUTFILE, ">", $CFG::CFG{'www_directory'}."/lbschedstats/data/blocks_hour_today.csv" or die $!;
 
   print OUTFILE "Categories,00,01,02,03,04,05,06,07,08,09,10,11,12,13,14,15,16,17,18,19,20,21,22,23\n";
 
