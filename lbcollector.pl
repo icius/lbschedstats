@@ -21,9 +21,9 @@ if (my $err = ReadCfg('config.cfg')) {
 $dbh = DBI->connect('DBI:mysql:'.$CFG::CFG{'mysql_db'}, $CFG::CFG{'mysql_usr'}, $CFG::CFG{'mysql_pwd'}
              ) || die "Could not connect to database: $DBI::errstr";
 
-if ($CFG::CFG{'modules'}{'blocks_day_by_hour'}{'enabled'} == 1) {
+if ($CFG::CFG{'modules'}{'blocks_daily_by_hour'}{'enabled'} == 1) {
 
-  my $retention_days = $CFG::CFG{'modules'}{'blocks_day_by_hour'}{'retention_days'};
+  my $retention_days = $CFG::CFG{'modules'}{'blocks_daily_by_hour'}{'retention_days'};
 
   for (my $count = 0; $count <= $retention_days; $count++) {
 
@@ -62,14 +62,14 @@ if ($CFG::CFG{'modules'}{'blocks_day_by_hour'}{'enabled'} == 1) {
       $sqlpart = 'date >= date_sub(curdate(), interval '.$count.' day) AND date < date_sub(curdate(), interval '.($count - 1).' day)';
     }
 
-    $sql = 'SELECT extract(hour from date) hour, sum(if (type > 0,1,0)) created,  sum(if (type = 0,1,0)) destroyed FROM `'.$CFG::CFG{'lb_table'}.'` where '.$sqlpart.' GROUP BY hour'; 
+    $sql = 'SELECT extract(hour from date) hour, sum(if (type > 0,1,0)) created,  sum(if (type = 0,1,0)) destroyed FROM `lb-'.$CFG::CFG{'world_name'}.'` where '.$sqlpart.' GROUP BY hour'; 
 
     print $sql."\n";
 
     $sth = $dbh->prepare($sql);
     $sth->execute();
 
-    open OUTFILE, ">", $CFG::CFG{'www_directory'}."/lbschedstats/data/blocks_day_by_hour".$count.".csv" or die $!;
+    open OUTFILE, ">", $CFG::CFG{'www_directory'}."/lbschedstats/data/blocks_daily_by_hour".$count.".csv" or die $!;
 
     print OUTFILE "Categories,00,01,02,03,04,05,06,07,08,09,10,11,12,13,14,15,16,17,18,19,20,21,22,23\n";
 
