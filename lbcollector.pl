@@ -72,7 +72,7 @@ if ($CFG::CFG{'modules'}{'blocks_daily_by_hour'}{'enabled'} == 1) {
     $sth = $dbh->prepare($sql);
     $sth->execute();
 
-    open OUTFILE, ">", $CFG::CFG{'www_directory'}."/lbschedstats/data/blocks_daily_by_hour".$count.".csv" or die $!;
+    open OUTFILE, ">", $CFG::CFG{'www_directory'}."/lbschedstatsweb/data/blocks_daily_by_hour".$count.".csv" or die $!;
 
     print OUTFILE "Categories,00,01,02,03,04,05,06,07,08,09,10,11,12,13,14,15,16,17,18,19,20,21,22,23\n";
 

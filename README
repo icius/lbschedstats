@@ -1,0 +1,76 @@
+LB SchedStats
+===============================================================================
+
+This package is meant for Minecraft server administrators who wish to see
+statistics from the LogBlock server plugin.
+
+The package uses efficient SQL queries to retrieve data from the MySQL LogBlock
+database on a set schedule.  The data is then presented to the administrator
+using concise graphs and reports.
+
+
+Version
+===============================================================================
+
+Version 1.0 is the first generally available version of LB SchedStats
+
+
+Pre-Requisites
+===============================================================================
+
+LB SchedStats makes use of Highcharts JavaScript graphing tools.  
+
+Highcharts is available at the following site:
+
+http://www.highcharts.com
+
+Instructions for installing Highcharts is available from the site.
+
+In addition to Highcharts the following packages are also required before using LB SchedStats:
+
+Linux Packages
+
+  libmysqlclient-dev
+
+Perl Modules
+
+  DBI-1.616
+  DBD-mysql-4.020
+
+
+Installation
+===============================================================================
+
+1. Untar/ungzip the lbschedstats.tar.gz file to a temporary location of your choice.
+2. cd lbschedstats
+3. Copy the following files to a location of your choice.
+
+  lbcollector.pl
+  config.cfg
+
+4. Copy the lbschedstatsweb directory to your webserver directory (example:  /var/www/).  Please ensure that the lbschedstatsweb directory is at the same directory level as the highcharts directory you created when installing Highcharts.
+
+  Example:
+
+    /var/www/lbschedstatsweb
+    /var/www/highcharts
+
+5. Edit the config.cfg file copied in step 3.  Follow the instructions in the file to properly configure your copy of LBSchedStats.
+
+6. Schedule the lbcollector.pl script to run via cron (or your scheduler of choice) at your desired interval.  Once an hour is a good starting point.
+
+7. Access the main LBSchedStats page on your web server using a browser.  The URL depends on where you installed lbschedstatsweb in step 4.
+
+  Example:
+
+    http://yourserver/lbschedstatsweb/lbschedstats.htm
+
+
+
+
+
+
+
+
+
+
