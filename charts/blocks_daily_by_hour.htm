@@ -2,7 +2,23 @@
 <html>
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-		<title>Highcharts Example</title>
+		<title>LB SchedStats</title>
+
+    <style type="text/css">
+
+      body {
+        margin:0px 0px; padding:0px;
+        text-align:center;
+        background-color: #333;
+      }
+
+      #Content {
+        width:800px;
+        margin:0px auto;
+        text-align:left;
+       }
+
+    </style>
 		
 		
 		<!-- 1. Add these JavaScript inclusions in the head of your page -->
@@ -22,6 +38,66 @@
 		
 		<!-- 2. Add the JavaScript to initialize the chart on document ready -->
 		<script type="text/javascript">
+
+      var moreDays = 0;
+
+      function setMoreDays(flag) {
+        moreDays = flag;
+      }
+
+
+      var prevDay = parseInt(sessionStorage.getItem("myDay"));
+      prevDay += 1;
+
+      $.ajax({
+        url:'../data/blocks_daily_by_hour' + prevDay + '.csv',
+        type:'HEAD',
+        async: false,
+        success:
+          function(){
+            setMoreDays(1);
+          }
+      });
+
+      if(!sessionStorage.getItem("myDay")) {
+        sessionStorage.setItem("myDay", 0);
+      }
+
+      function switchDay(direction) {
+
+        var sessionDay = parseInt(sessionStorage.getItem("myDay"));
+
+        if(direction == "back") {
+
+         sessionDay = sessionDay + 1;
+         sessionStorage.setItem("myDay", sessionDay);
+
+        }
+
+        if(direction == "fwd") {
+
+          sessionDay = sessionDay - 1;
+
+          if(sessionDay < 0) {
+        
+            sessionDay = 0;
+
+          }
+
+          sessionStorage.setItem("myDay", sessionDay);
+        }
+
+        location.reload(true);
+
+      }
+
+      function chartReset() {
+
+        sessionStorage.setItem("myDay", 0);
+        location.reload(true);
+
+      }
+
 
       var today = new Date();
 		
@@ -77,7 +153,7 @@
         };
 				
 
-    $.get('../data/blocks_daily_by_hour0.csv', function(data) {
+    $.get('../data/blocks_daily_by_hour' + sessionStorage.getItem("myDay") + '.csv', function(data) {
         // Split the lines
         var lines = data.split('\n');
 
@@ -116,10 +192,30 @@
 
 		</script>
 	</head>
-	<body>
-		
-		<!-- 3. Add the container -->
-		<div id="container" style="width: 800px; height: 400px; margin: 0 auto"></div>
-				
+  <body>
+    <div id="Content">
+      <table cellpadding=0 cellspacing=0>
+      <tr><td><img src="../img/top_img.jpg"></td></tr>
+      </table>
+      <table cellpadding=0 cellspacing=2>
+      <tr>
+        <td><a href="javascript:chartReset()"><img src="../img/reset.gif"></a></td>
+
+        <script language="JavaScript">
+
+          if(moreDays == 1){
+            document.writeln('<td><a href="javascript:switchDay(\'back\')"><img src="../img/older.gif"></a></td>');
+          }
+
+          if(sessionStorage.getItem("myDay") != "0") {
+            document.writeln('<td><a href="javascript:switchDay(\'fwd\')"><img src="../img/newer.gif"></a></td>');
+          }
+
+        </script>
+      </tr>
+      </table>
+      
+      <div id="container" style="width: 800px; height: 400px; margin: 0 auto"></div>
+    </div>
 	</body>
 </html>

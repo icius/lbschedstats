@@ -18,7 +18,10 @@ if (my $err = ReadCfg('config.cfg')) {
   exit(1);
 }
 
-$dbh = DBI->connect('DBI:mysql:'.$CFG::CFG{'mysql_db'}, $CFG::CFG{'mysql_usr'}, $CFG::CFG{'mysql_pwd'}
+#$dbh = DBI->connect('DBI:mysql:'.$CFG::CFG{'mysql_db'}, $CFG::CFG{'mysql_usr'}, $CFG::CFG{'mysql_pwd'}
+#             ) || die "Could not connect to database: $DBI::errstr";
+
+$dbh = DBI->connect("DBI:mysql:database=$CFG::CFG{'mysql_db'};host=$CFG::CFG{'mysql_host'};port=$CFG::CFG{'mysql_port'}", $CFG::CFG{'mysql_usr'}, $CFG::CFG{'mysql_pwd'}
              ) || die "Could not connect to database: $DBI::errstr";
 
 if ($CFG::CFG{'modules'}{'blocks_daily_by_hour'}{'enabled'} == 1) {
