@@ -127,13 +127,8 @@
 						}
 					},
 					legend: {
-						layout: 'vertical',
+						layout: 'horizontal',
 						backgroundColor: '#FFFFFF',
-						align: 'left',
-						verticalAlign: 'top',
-						x: 100,
-						y: 70,
-						floating: true,
 						shadow: true
 					},
 					tooltip: {
@@ -162,7 +157,15 @@
           var items = line.split(',');
 
           // header line containes categories
+
           if (lineNo == 0) {
+            $.each(items, function(itemNo, item) {
+              if (itemNo == 0) options.title.text = 'Block Activity by Hour (' + item + ')';
+              if (itemNo == 1) options.subtitle.text = item;
+            });
+          }
+
+          else if (lineNo == 1) {
             $.each(items, function(itemNo, item) {
               if (itemNo > 0) options.xAxis.categories.push(item);
             });

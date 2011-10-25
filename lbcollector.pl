@@ -11,15 +11,13 @@ my $sql;
 my $sqlpart;
 my %hour_created_hash;
 my %hour_destroyed_hash;
+my $report_date;
 
 # Get our configuration information
 if (my $err = ReadCfg('config.cfg')) {
   print(STDERR $err, "\n");
   exit(1);
 }
-
-#$dbh = DBI->connect('DBI:mysql:'.$CFG::CFG{'mysql_db'}, $CFG::CFG{'mysql_usr'}, $CFG::CFG{'mysql_pwd'}
-#             ) || die "Could not connect to database: $DBI::errstr";
 
 $dbh = DBI->connect("DBI:mysql:database=$CFG::CFG{'mysql_db'};host=$CFG::CFG{'mysql_host'};port=$CFG::CFG{'mysql_port'}", $CFG::CFG{'mysql_usr'}, $CFG::CFG{'mysql_pwd'}
              ) || die "Could not connect to database: $DBI::errstr";
@@ -74,6 +72,9 @@ if ($CFG::CFG{'modules'}{'blocks_daily_by_hour'}{'enabled'} == 1) {
 
     open OUTFILE, ">", $CFG::CFG{'www_directory'}."/lbschedstatsweb/data/blocks_daily_by_hour".$count.".csv" or die $!;
 
+    $report_date = daySubtract($count);
+
+    print OUTFILE "$CFG::CFG{'world_name'},$report_date\n";
     print OUTFILE "Categories,00,01,02,03,04,05,06,07,08,09,10,11,12,13,14,15,16,17,18,19,20,21,22,23\n";
 
     while (my ($hour, $created, $destroyed) = $sth->fetchrow_array())
@@ -132,4 +133,19 @@ sub ReadCfg
   }
 
   return ($err);
+}
+
+sub daySubtract {
+
+  my $myseconds=time - ($_[0] * 86400);
+  my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime($myseconds);
+  $year=$year+1900;
+  $mon=$mon+1;
+  if($mon<10)
+  {$mon="0$mon";}
+  if($mday<10)
+  {$mday="0$mday";}
+  my $mydate="$mon/$mday/$year";
+  return $mydate;
+
 }
