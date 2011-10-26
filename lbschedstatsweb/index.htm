@@ -1,0 +1,71 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>LB SchedStats</title>
+
+    <style type="text/css">
+
+      body {
+        margin:0px 0px; padding:0px;
+        text-align:center;
+        background-color: #333;
+      }
+
+      #Content {
+        width:800px;
+        margin:0px auto;
+        text-align:left;
+       }
+
+    </style>
+
+    <script language="JavaScript">
+
+    var window.reportSelector = "<select>";
+
+    function appendSelector(text) {
+
+      window.reportSelector += text;
+
+    }
+
+
+    $.get('../data/active_modules.csv', function(data) { 
+
+      var lines = data.split('\n'); 
+
+      $.each(lines, function(lineNo, line) { 
+
+        var items = line.split(','); 
+
+        $.each(items, function(itemNo, item) { 
+
+          appendSelector("<option value='");
+
+          if (itemNo == 0) appendSelector(item + "'>");
+          if (itemNo == 1) appendSelector(item + "</option>");
+
+        }); 
+      });
+    });
+
+    </script>
+  </head>
+  <body>
+    <div id="Content">
+      <table cellpadding=0 cellspacing=0>
+      <tr><td><img src="img/top_img.jpg"></td></tr>
+      </table>
+      <table width=100% cellpadding=0 cellspacing=2>
+      <tr>
+        <td align=right>
+        <script language="JavaScript">
+          document.writeln(window.reportSelector);
+        </script>
+        </td>
+      </tr>
+      </table>
+    </div>
+	</body>
+</html>
