@@ -8,7 +8,6 @@ use DBI;
 my $dbh;
 my $sth;
 my $sql;
-my $sqlpart;
 my %hour_created_hash;
 my %hour_destroyed_hash;
 my $report_date;
@@ -22,94 +21,48 @@ if (my $err = ReadCfg('config.cfg')) {
 $dbh = DBI->connect("DBI:mysql:database=$CFG::CFG{'mysql_db'};host=$CFG::CFG{'mysql_host'};port=$CFG::CFG{'mysql_port'}", $CFG::CFG{'mysql_usr'}, $CFG::CFG{'mysql_pwd'}
              ) || die "Could not connect to database: $DBI::errstr";
 
-if ($CFG::CFG{'modules'}{'blocks_daily_by_hour'}{'enabled'} == 1) {
+my @hours = ("00", "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23");
 
-  my $retention_days = $CFG::CFG{'modules'}{'blocks_daily_by_hour'}{'retention_days'};
+if ($CFG::CFG{'modules'}{'blocks_daily_by_hour'} == 1) {
 
-  for (my $count = 0; $count <= $retention_days; $count++) {
+  %hour_created_hash = map { $_ => 0 } @hours;
+  %hour_destroyed_hash = %hour_created_hash;
 
-    %hour_created_hash = ( 
-                  '00' => 0,
-                  '01' => 0,
-                  '02' => 0,
-                  '03' => 0,
-                  '04' => 0,
-                  '05' => 0,
-                  '06' => 0,
-                  '07' => 0,
-                  '08' => 0,
-                  '09' => 0,
-                  '10' => 0,
-                  '11' => 0,
-                  '12' => 0,
-                  '13' => 0,
-                  '14' => 0,
-                  '15' => 0,
-                  '16' => 0,
-                  '17' => 0,
-                  '18' => 0,
-                  '19' => 0,
-                  '20' => 0,
-                  '21' => 0,
-                  '22' => 0,
-                  '23' => 0
-                  );
+  $sql = 'SELECT extract(hour from date) hour, sum(if (type > 0,1,0)) created,  sum(if (type = 0,1,0)) destroyed FROM `lb-'.$CFG::CFG{'world_name'}.'` where date >= curdate() GROUP BY hour'; 
 
-    %hour_destroyed_hash = %hour_created_hash;
+  print $sql."\n";
 
-    if($count == 0) {
-      $sqlpart = 'date >= curdate()';
-    } else {
-      $sqlpart = 'date >= date_sub(curdate(), interval '.$count.' day) AND date < date_sub(curdate(), interval '.($count - 1).' day)';
-    }
+  $sth = $dbh->prepare($sql);
+  $sth->execute();
 
-    $sql = 'SELECT extract(hour from date) hour, sum(if (type > 0,1,0)) created,  sum(if (type = 0,1,0)) destroyed FROM `lb-'.$CFG::CFG{'world_name'}.'` where '.$sqlpart.' GROUP BY hour'; 
+  open OUTFILE, ">", $CFG::CFG{'www_directory'}."/lbschedstatsweb/data/blocks_daily_by_hour_".getTodayStamp().".csv" or die $!;
 
-    print $sql."\n";
+  print OUTFILE "$CFG::CFG{'world_name'},".getToday()."\n";
+  print OUTFILE "Categories,00,01,02,03,04,05,06,07,08,09,10,11,12,13,14,15,16,17,18,19,20,21,22,23\n";
 
-    $sth = $dbh->prepare($sql);
-    $sth->execute();
-
-    open OUTFILE, ">", $CFG::CFG{'www_directory'}."/lbschedstatsweb/data/blocks_daily_by_hour".$count.".csv" or die $!;
-
-    $report_date = daySubtract($count);
-
-    print OUTFILE "$CFG::CFG{'world_name'},$report_date\n";
-    print OUTFILE "Categories,00,01,02,03,04,05,06,07,08,09,10,11,12,13,14,15,16,17,18,19,20,21,22,23\n";
-
-    while (my ($hour, $created, $destroyed) = $sth->fetchrow_array())
-    {
-      $hour_created_hash{$hour} = $created;
-      $hour_destroyed_hash{$hour} = $destroyed;
-    }
-
-    print OUTFILE "Created";
-
-    for my $key (keys %hour_created_hash) 
-    {
-      print OUTFILE ",$hour_created_hash{$key}";
-    }
-
-    print OUTFILE "\n";
-
-    print OUTFILE "Destroyed";
-
-    for my $key (keys %hour_destroyed_hash) 
-    {
-      print OUTFILE ",$hour_destroyed_hash{$key}";
-    }
-
-    close OUTFILE;
+  while (my ($hour, $created, $destroyed) = $sth->fetchrow_array())
+  {
+    $hour_created_hash{$hour} = $created;
+    $hour_destroyed_hash{$hour} = $destroyed;
   }
+
+  my $created_line = "Created";
+  my $destroyed_line = "Destroyed";
+
+  for my $array_hour(@hours) 
+  {
+    print "$array_hour\n";
+    $created_line .= ",$hour_created_hash{$array_hour}";
+    $destroyed_line .= ",$hour_destroyed_hash{$array_hour}";
+  }
+
+  print OUTFILE "$created_line\n$destroyed_line";
+
+  close OUTFILE;
 }
 
 $dbh->disconnect();
 
-
-
-#Read a configuration file
-#   The arg can be a relative or full path, or
-#   it can be a file located somewhere in @INC.
 sub ReadCfg
 {
   my $file = $_[0];
@@ -149,3 +102,32 @@ sub daySubtract {
   return $mydate;
 
 }
+
+sub getTodayStamp {
+
+  my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime(time);
+  $year=$year+1900;
+  $mon=$mon+1;
+  if($mon<10)
+  {$mon="0$mon";}
+  if($mday<10)
+  {$mday="0$mday";}
+  my $mydate=$year.$mon.$mday;
+  return $mydate;
+
+}
+
+sub getToday {
+
+  my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime(time);
+  $year=$year+1900;
+  $mon=$mon+1;
+  if($mon<10)
+  {$mon="0$mon";}
+  if($mday<10)
+  {$mday="0$mday";}
+  my $mydate="$year-$mon-$mday";
+  return $mydate;
+
+}
+
