@@ -20,37 +20,21 @@
 
     </style>
 
-    <script language="JavaScript">
+  <script language="JavaScript">
 
-    var window.reportSelector = "<select>";
+  function runReport(sel){
 
-    function appendSelector(text) {
+    var url = sel.options[sel.selectedIndex].value;
 
-      window.reportSelector += text;
-
+    if(url != "none") {
+      location.href = "reports/" + url;
     }
+  }
 
+  </script>
 
-    $.get('../data/active_modules.csv', function(data) { 
+  <script type="text/javascript" src="options.js"></script>
 
-      var lines = data.split('\n'); 
-
-      $.each(lines, function(lineNo, line) { 
-
-        var items = line.split(','); 
-
-        $.each(items, function(itemNo, item) { 
-
-          appendSelector("<option value='");
-
-          if (itemNo == 0) appendSelector(item + "'>");
-          if (itemNo == 1) appendSelector(item + "</option>");
-
-        }); 
-      });
-    });
-
-    </script>
   </head>
   <body>
     <div id="Content">
@@ -59,9 +43,10 @@
       </table>
       <table width=100% cellpadding=0 cellspacing=2>
       <tr>
-        <td align=right>
+        <td align=right valign=top>
+        <img src="img/select.gif" align=middle>
         <script language="JavaScript">
-          document.writeln(window.reportSelector);
+          document.writeln(RptOptions);
         </script>
         </td>
       </tr>

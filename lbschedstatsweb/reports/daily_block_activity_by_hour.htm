@@ -19,9 +19,24 @@
        }
 
     </style>
+
+		<script type="text/javascript">
+
+    function runReport(sel){
+
+      var url = sel.options[sel.selectedIndex].value;
+
+      if(url != "none") {
+        location.href = url;
+      }
+    }
+
+    </script>
+
+    <script type="text/javascript" src="../options.js"></script>
+
 		
 		<!-- 1. Add these JavaScript inclusions in the head of your page -->
-		<script type="text/javascript" src="../config.js"></script>
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
 		<script type="text/javascript" src="../../highcharts/js/highcharts.js"></script>
 		
@@ -58,10 +73,9 @@
       nextDate.setDate(myDate.getDate() - 1);
       nextDateFormat = nextDate.getFullYear().toString() + (nextDate.getMonth()+1).toString() + nextDate.getDate().toString() + "";
 
-      alert(DataDir);
 
       $.ajax({
-        url:DataDir + '/daily_block_activity_by_hour/daily_block_activity_by_hour_' + nextDateFormat + '.csv',
+        url:'../data/daily_block_activity_by_hour/daily_block_activity_by_hour_' + nextDateFormat + '.csv',
         type:'HEAD',
         async: false,
         success:
@@ -158,9 +172,7 @@
 
         };
         
-				alert(DataDir + '/daily_block_activity_by_hour/daily_block_activity_by_hour_' + myDateFormat + '.csv');
-
-    $.get(DataDir + '/daily_block_activity_by_hour/daily_block_activity_by_hour_' + myDateFormat + '.csv', function(data) {
+    $.get('../data/daily_block_activity_by_hour/daily_block_activity_by_hour_' + myDateFormat + '.csv', function(data) {
         // Split the lines
         var lines = data.split('\n');
 
@@ -225,6 +237,11 @@
           if(sessionStorage.getItem("dayCount") != "0") {
             document.writeln('<td><a href="javascript:switchDay(\'fwd\')"><img src="../img/newer.gif"></a></td>');
           }
+
+          document.writeln("<td width=100% align=right>");
+          document.writeln("<img src='../img/select.gif' align='middle'>");
+          document.writeln(RptOptions);
+          document.writeln("</td>");
 
         </script>
       </tr>
