@@ -13,17 +13,27 @@ my %hour_destroyed_hash;
 my $report_date;
 
 # Get our configuration information
-if (my $err = ReadCfg('config.cfg')) {
+if (my $err = ReadCfg('config.cfg')) 
+{
   print(STDERR $err, "\n");
   exit(1);
 }
+
+writeJSConfig(); 
 
 $dbh = DBI->connect("DBI:mysql:database=$CFG::CFG{'mysql_db'};host=$CFG::CFG{'mysql_host'};port=$CFG::CFG{'mysql_port'}", $CFG::CFG{'mysql_usr'}, $CFG::CFG{'mysql_pwd'}
              ) || die "Could not connect to database: $DBI::errstr";
 
 my @hours = ("00", "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23");
 
-if ($CFG::CFG{'modules'}{'blocks_daily_by_hour'} == 1) {
+# Module - Daily Block Activity By Hour
+
+if ($CFG::CFG{'modules'}{'daily_block_activity_by_hour'} == 1) {
+
+  if(! -d $CFG::CFG{'data_directory'}."/daily_block_activity_by_hour") 
+  { 
+    mkdir $CFG::CFG{'data_directory'}."/daily_block_activity_by_hour" or die $!;
+  }
 
   %hour_created_hash = map { $_ => 0 } @hours;
   %hour_destroyed_hash = %hour_created_hash;
@@ -35,7 +45,7 @@ if ($CFG::CFG{'modules'}{'blocks_daily_by_hour'} == 1) {
   $sth = $dbh->prepare($sql);
   $sth->execute();
 
-  open OUTFILE, ">", $CFG::CFG{'www_directory'}."/lbschedstatsweb/data/blocks_daily_by_hour_".getTodayStamp().".csv" or die $!;
+  open OUTFILE, ">", $CFG::CFG{'data_directory'}."/daily_block_activity_by_hour/daily_block_activity_by_hour_".getTodayStamp().".csv" or die $!;
 
   print OUTFILE "$CFG::CFG{'world_name'},".getToday()."\n";
   print OUTFILE "Categories,00,01,02,03,04,05,06,07,08,09,10,11,12,13,14,15,16,17,18,19,20,21,22,23\n";
@@ -69,13 +79,11 @@ sub ReadCfg
 
   our $err;
 
-  {   # Put config data into a separate namespace
+  {
     package CFG;
 
-# Process the contents of the config file
     my $rc = do($file);
 
-# Check for errors
     if ($@) {
       $::err = "ERROR: Failure compiling '$file' - $@";
     } elsif (! defined($rc)) {
@@ -131,3 +139,10 @@ sub getToday {
 
 }
 
+sub writeJSConfig {
+
+  open OUTFILE, ">", $CFG::CFG{'www_directory'}."/lbschedstatsweb/config.js" or die $!;
+  print OUTFILE "var DataDir = '".$CFG::CFG{'data_directory'}."';\n"; 
+  close OUTFILE;
+
+}

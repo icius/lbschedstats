@@ -20,8 +20,8 @@
 
     </style>
 		
-		
 		<!-- 1. Add these JavaScript inclusions in the head of your page -->
+		<script type="text/javascript" src="../config.js"></script>
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
 		<script type="text/javascript" src="../../highcharts/js/highcharts.js"></script>
 		
@@ -39,18 +39,29 @@
 		<!-- 2. Add the JavaScript to initialize the chart on document ready -->
 		<script type="text/javascript">
 
+      if(!sessionStorage.getItem("dayCount")) {
+        sessionStorage.setItem("dayCount", 0);
+      }
+
       var moreDays = 0;
 
       function setMoreDays(flag) {
         moreDays = flag;
       }
 
+      var myDate = new Date();
+      myDate.setDate(myDate.getDate() - sessionStorage.getItem("dayCount"));
+      myDateFormat = myDate.getFullYear().toString() + (myDate.getMonth()+1).toString() + myDate.getDate().toString() + "";
 
-      var prevDay = parseInt(sessionStorage.getItem("myDay"));
-      prevDay += 1;
+
+      var nextDate = new Date();
+      nextDate.setDate(myDate.getDate() - 1);
+      nextDateFormat = nextDate.getFullYear().toString() + (nextDate.getMonth()+1).toString() + nextDate.getDate().toString() + "";
+
+      alert(DataDir);
 
       $.ajax({
-        url:'../data/blocks_daily_by_hour' + prevDay + '.csv',
+        url:DataDir + '/daily_block_activity_by_hour/daily_block_activity_by_hour_' + nextDateFormat + '.csv',
         type:'HEAD',
         async: false,
         success:
@@ -59,18 +70,18 @@
           }
       });
 
-      if(!sessionStorage.getItem("myDay")) {
-        sessionStorage.setItem("myDay", 0);
+      if(!sessionStorage.getItem("dayCount")) {
+        sessionStorage.setItem("dayCount", 0);
       }
 
       function switchDay(direction) {
 
-        var sessionDay = parseInt(sessionStorage.getItem("myDay"));
+        var sessionDay = parseInt(sessionStorage.getItem("dayCount"));
 
         if(direction == "back") {
 
          sessionDay = sessionDay + 1;
-         sessionStorage.setItem("myDay", sessionDay);
+         sessionStorage.setItem("dayCount", sessionDay);
 
         }
 
@@ -84,7 +95,7 @@
 
           }
 
-          sessionStorage.setItem("myDay", sessionDay);
+          sessionStorage.setItem("dayCount", sessionDay);
         }
 
         location.reload(true);
@@ -93,7 +104,7 @@
 
       function chartReset() {
 
-        sessionStorage.setItem("myDay", 0);
+        sessionStorage.setItem("dayCount", 0);
         location.reload(true);
 
       }
@@ -146,9 +157,10 @@
           series: []
 
         };
-				
+        
+				alert(DataDir + '/daily_block_activity_by_hour/daily_block_activity_by_hour_' + myDateFormat + '.csv');
 
-    $.get('../data/blocks_daily_by_hour_20111026' + '.csv', function(data) {
+    $.get(DataDir + '/daily_block_activity_by_hour/daily_block_activity_by_hour_' + myDateFormat + '.csv', function(data) {
         // Split the lines
         var lines = data.split('\n');
 
@@ -210,7 +222,7 @@
             document.writeln('<td><a href="javascript:switchDay(\'back\')"><img src="../img/older.gif"></a></td>');
           }
 
-          if(sessionStorage.getItem("myDay") != "0") {
+          if(sessionStorage.getItem("dayCount") != "0") {
             document.writeln('<td><a href="javascript:switchDay(\'fwd\')"><img src="../img/newer.gif"></a></td>');
           }
 
