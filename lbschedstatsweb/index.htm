@@ -27,6 +27,7 @@
     var url = sel.options[sel.selectedIndex].value;
 
     if(url != "none") {
+      sessionStorage.setItem("dayCount", 0);
       location.href = "reports/" + url;
     }
   }
