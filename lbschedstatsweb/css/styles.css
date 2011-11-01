@@ -1,0 +1,11 @@
+body {
+margin:0px 0px; padding:0px;
+       text-align:center;
+       background-color: #333;
+}
+
+#Content {
+width:800px;
+margin:0px auto;
+       text-align:left;
+}

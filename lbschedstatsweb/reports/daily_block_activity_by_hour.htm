@@ -3,56 +3,15 @@
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 		<title>LB SchedStats</title>
+      
+    <link rel="stylesheet" type="text/css" href="../css/styles.css" />
 
-    <style type="text/css">
-
-      body {
-        margin:0px 0px; padding:0px;
-        text-align:center;
-        background-color: #333;
-      }
-
-      #Content {
-        width:800px;
-        margin:0px auto;
-        text-align:left;
-       }
-
-    </style>
-
-		<script type="text/javascript">
-
-    function runReport(sel){
-
-      var url = sel.options[sel.selectedIndex].value;
-
-      if(url != "none") {
-        sessionStorage.setItem("dayCount", 0);
-        location.href = url;
-      }
-    }
-
-    </script>
-
+    <script type="text/javascript" src="../functions.js"></script>
     <script type="text/javascript" src="../options.js"></script>
-
 		
-		<!-- 1. Add these JavaScript inclusions in the head of your page -->
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
 		<script type="text/javascript" src="../../highcharts/js/highcharts.js"></script>
 		
-		<!-- 1a) Optional: add a theme file -->
-		<!--
-			<script type="text/javascript" src="../js/themes/gray.js"></script>
-		-->
-		
-		<!-- 1b) Optional: the exporting module -->
-    <!--
-		<script type="text/javascript" src="../../highcharts/js/modules/exporting.js"></script>
-    -->
-		
-		
-		<!-- 2. Add the JavaScript to initialize the chart on document ready -->
 		<script type="text/javascript">
 
       if(!sessionStorage.getItem("dayCount")) {
@@ -65,56 +24,8 @@
         moreDays = flag;
       }
 
-      var myDate = new Date();
-      myDate.setDate(myDate.getDate() - sessionStorage.getItem("dayCount"));
-
-      var myDateMonth = myDate.getMonth()+1;
-      var myDateDay = myDate.getDate();
-
-      if(myDateMonth < 10) {
-        myDateMonth = "0" + myDateMonth.toString();
-      }
-
-      else {
-        myDateMonth = myDateMonth.toString();
-      }
-
-      if(myDateDay < 10) {
-        myDateDay = "0" + myDateDay.toString();
-      }
-
-      else {
-        myDateDay = myDateDay.toString();
-      }
-
-
-      myDateFormat = myDate.getFullYear().toString() + myDateMonth + myDateDay;
-
-
-      var nextDate = new Date();
-      nextDate.setDate(myDate.getDate() - 1);
-
-      var nextDateMonth = nextDate.getMonth()+1;
-      var nextDateDay = nextDate.getDate();
-
-      if(nextDateMonth < 10) {
-        nextDateMonth = "0" + nextDateMonth.toString();
-      }
-
-      else {
-        nextDateMonth = nextDateMonth.toString();
-      }
-
-      if(nextDateDay < 10) {
-        nextDateDay = "0" + nextDateDay.toString();
-      }
-
-      else {
-        nextDateDay = nextDateDay.toString();
-      }
-
-
-      nextDateFormat = nextDate.getFullYear().toString() + nextDateMonth + nextDateDay;
+      myDateFormat = formatDate(sessionStorage.getItem("dayCount"));
+      nextDateFormat = formatDate(sessionStorage.getItem("dayCount") - 1);
 
       $.ajax({
         url:'../data/daily_block_activity_by_hour/daily_block_activity_by_hour_' + nextDateFormat + '.csv',
