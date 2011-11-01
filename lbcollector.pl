@@ -110,9 +110,9 @@ if ($CFG::CFG{'modules'}{$module_name} == 1) {
   $sth = $dbh->prepare($sql);
   $sth->execute();
 
-  print "Writing to file:\n $CFG::CFG{'www_directory'}/lbschedstatsweb/data/$module_name/".$module_name."_".getTodayStamp().".csv\n";
+  print "Writing to file:\n $CFG::CFG{'www_directory'}/lbschedstatsweb/data/$module_name/".$module_name."_created_".getTodayStamp().".csv\n";
 
-  open OUTFILE, ">", $CFG::CFG{'www_directory'}."/lbschedstatsweb/data/$module_name/".$module_name."_".getTodayStamp().".csv" or die $!;
+  open OUTFILE, ">", $CFG::CFG{'www_directory'}."/lbschedstatsweb/data/$module_name/".$module_name."_created_".getTodayStamp().".csv" or die $!;
 
   print OUTFILE "$CFG::CFG{'world_name'},".getToday()."\n";
   print OUTFILE "Categories";
@@ -130,6 +130,38 @@ if ($CFG::CFG{'modules'}{$module_name} == 1) {
   print OUTFILE "\n$created_line";
 
   close OUTFILE;
+
+
+  $sql = 'select count(type) created, playername from `lb-'.$CFG::CFG{'world_name'}.'`, `lb-players` where type = 0 AND `lb-players`.playerid = `lb-'.$CFG::CFG{'world_name'}.'`.playerid group by playername order by created desc limit 10';
+
+  print "Executing Query:\n";
+
+  print $sql."\n";
+
+  $sth = $dbh->prepare($sql);
+  $sth->execute();
+
+  print "Writing to file:\n $CFG::CFG{'www_directory'}/lbschedstatsweb/data/$module_name/".$module_name."_destroyed_".getTodayStamp().".csv\n";
+
+  open OUTFILE, ">", $CFG::CFG{'www_directory'}."/lbschedstatsweb/data/$module_name/".$module_name."_destroyed_".getTodayStamp().".csv" or die $!;
+
+  print OUTFILE "$CFG::CFG{'world_name'},".getToday()."\n";
+  print OUTFILE "Categories";
+
+  my $destroyed_line = "Destroyed";
+
+  while (my ($created, $playername) = $sth->fetchrow_array())
+  {
+
+    print OUTFILE ",$playername";
+    $destroyed_line .= ",$created";
+
+  }
+
+  print OUTFILE "\n$destroyed_line";
+
+  close OUTFILE;
+
 }
 
 # END of Modules

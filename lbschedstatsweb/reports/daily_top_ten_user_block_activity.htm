@@ -30,7 +30,7 @@
       nextDateFormat = formatDate(sessionStorage.getItem("dayCount") - 1);
 
       $.ajax({
-        url:'../data/' + rptModule + '/' + rptModule + '_' + nextDateFormat + '.csv',
+        url:'../data/' + rptModule + '/' + rptModule + '_created_' + nextDateFormat + '.csv',
         type:'HEAD',
         async: false,
         success:
@@ -89,7 +89,7 @@
 
       };
 
-      $.get('../data/' + rptModule + '/' + rptModule + '_' + myDateFormat + '.csv', function(data) {
+      $.get('../data/' + rptModule + '/' + rptModule + '_created_' + myDateFormat + '.csv', function(data) {
 
         var lines = data.split('\n');
 
@@ -116,6 +116,7 @@
             $.each(items, function(itemNo, item) {
               if (itemNo == 0) {
                 series.name = item;
+                series.color = '#89a54e';
               } else {
                 series.data.push(parseFloat(item));
               }
@@ -184,7 +185,7 @@
 
 
 
-      $.get('../data/' + rptModule + '/' + rptModule + '_' + myDateFormat + '.csv', function(data) {
+      $.get('../data/' + rptModule + '/' + rptModule + '_destroyed_' + myDateFormat + '.csv', function(data) {
 
         var lines = data.split('\n');
 
@@ -211,6 +212,7 @@
             $.each(items, function(itemNo, item) {
               if (itemNo == 0) {
                 series.name = item;
+                series.color = '#aa4643';
               } else {
                 series.data.push(parseFloat(item));
               }
