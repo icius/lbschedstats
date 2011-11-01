@@ -101,7 +101,7 @@ if ($CFG::CFG{'modules'}{$module_name} == 1) {
     mkdir $CFG::CFG{'www_directory'}."/lbschedstatsweb/data/$module_name" or die $!;
   }
 
-  $sql = 'select count(type) created, playername from `lb-'.$CFG::CFG{'world_name'}.'`, `lb-players` where type > 0 AND `lb-players`.playerid = `lb-'.$CFG::CFG{'world_name'}.'`.playerid group by playername order by created desc limit 10';
+  $sql = 'select count(type) created, playername from `lb-'.$CFG::CFG{'world_name'}.'`, `lb-players` where date >= curdate() AND type > 0 AND `lb-players`.playerid = `lb-'.$CFG::CFG{'world_name'}.'`.playerid group by playername order by created desc limit 10';
 
   print "Executing Query:\n";
 
@@ -132,7 +132,7 @@ if ($CFG::CFG{'modules'}{$module_name} == 1) {
   close OUTFILE;
 
 
-  $sql = 'select count(type) created, playername from `lb-'.$CFG::CFG{'world_name'}.'`, `lb-players` where type = 0 AND `lb-players`.playerid = `lb-'.$CFG::CFG{'world_name'}.'`.playerid group by playername order by created desc limit 10';
+  $sql = 'select count(type) created, playername from `lb-'.$CFG::CFG{'world_name'}.'`, `lb-players` where date >= curdate() AND type = 0 AND `lb-players`.playerid = `lb-'.$CFG::CFG{'world_name'}.'`.playerid group by playername order by created desc limit 10';
 
   print "Executing Query:\n";
 
