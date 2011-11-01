@@ -67,13 +67,54 @@
 
       var myDate = new Date();
       myDate.setDate(myDate.getDate() - sessionStorage.getItem("dayCount"));
-      myDateFormat = myDate.getFullYear().toString() + (myDate.getMonth()+1).toString() + myDate.getDate().toString() + "";
+
+      var myDateMonth = myDate.getMonth()+1;
+      var myDateDay = myDate.getDate();
+
+      if(myDateMonth < 10) {
+        myDateMonth = "0" + myDateMonth.toString();
+      }
+
+      else {
+        myDateMonth = myDateMonth.toString();
+      }
+
+      if(myDateDay < 10) {
+        myDateDay = "0" + myDateDay.toString();
+      }
+
+      else {
+        myDateDay = myDateDay.toString();
+      }
+
+
+      myDateFormat = myDate.getFullYear().toString() + myDateMonth + myDateDay;
 
 
       var nextDate = new Date();
       nextDate.setDate(myDate.getDate() - 1);
-      nextDateFormat = nextDate.getFullYear().toString() + (nextDate.getMonth()+1).toString() + nextDate.getDate().toString() + "";
 
+      var nextDateMonth = nextDate.getMonth()+1;
+      var nextDateDay = nextDate.getDate();
+
+      if(nextDateMonth < 10) {
+        nextDateMonth = "0" + nextDateMonth.toString();
+      }
+
+      else {
+        nextDateMonth = nextDateMonth.toString();
+      }
+
+      if(nextDateDay < 10) {
+        nextDateDay = "0" + nextDateDay.toString();
+      }
+
+      else {
+        nextDateDay = nextDateDay.toString();
+      }
+
+
+      nextDateFormat = nextDate.getFullYear().toString() + nextDateMonth + nextDateDay;
 
       $.ajax({
         url:'../data/daily_block_activity_by_hour/daily_block_activity_by_hour_' + nextDateFormat + '.csv',
@@ -172,7 +213,7 @@
           series: []
 
         };
-        
+
     $.get('../data/daily_block_activity_by_hour/daily_block_activity_by_hour_' + myDateFormat + '.csv', function(data) {
         // Split the lines
         var lines = data.split('\n');
