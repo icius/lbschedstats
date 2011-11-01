@@ -37,70 +37,60 @@
           }
       });
 
-
-      function chartReset() {
-
-        sessionStorage.setItem("dayCount", 0);
-        location.reload(true);
-
-      }
-
-		
       var options = {
 
-					chart: {
-						renderTo: 'container',
-						defaultSeriesType: 'column'
-					},
+        chart: {
+          renderTo: 'container',
+          defaultSeriesType: 'column'
+        },
 
-					title: {
-						text: 'Block Activity By Hour'
-					},
+        title: {
+          text: 'Block Activity By Hour'
+        },
 
-          subtitle: {
-            text: '' 
-          },
+        subtitle: {
+          text: '' 
+        },
 
-					xAxis: {
-						categories: [] 
-          },
+        xAxis: {
+          categories: [] 
+        },
 
-					yAxis: {
-						min: 0,
-						title: {
-							text: 'Block Count'
-						}
-					},
-					legend: {
-						layout: 'horizontal',
-						backgroundColor: '#FFFFFF',
-						shadow: true
-					},
-					tooltip: {
-						formatter: function() {
-							return ''+ this.y;
-						}
-					},
-					plotOptions: {
-						column: {
-							pointPadding: 0.2,
-							borderWidth: 0
-						}
-					},
+        yAxis: {
+          min: 0,
+          title: {
+            text: 'Block Count'
+          }
+        },
 
-          series: []
+        legend: {
+          layout: 'horizontal',
+          backgroundColor: '#FFFFFF',
+          shadow: true
+        },
 
-        };
+        tooltip: {
+          formatter: function() {
+            return ''+ this.y;
+          }
+        },
+        plotOptions: {
+          column: {
+            pointPadding: 0.2,
+            borderWidth: 0
+          }
+        },
 
-    $.get('../data/daily_block_activity_by_hour/daily_block_activity_by_hour_' + myDateFormat + '.csv', function(data) {
-        // Split the lines
+        series: []
+
+      };
+
+      $.get('../data/daily_block_activity_by_hour/daily_block_activity_by_hour_' + myDateFormat + '.csv', function(data) {
+
         var lines = data.split('\n');
 
-        // Iterate over the lines and add categories or series
         $.each(lines, function(lineNo, line) {
           var items = line.split(',');
-
-          // header line containes categories
 
           if (lineNo == 0) {
             $.each(items, function(itemNo, item) {
@@ -133,40 +123,38 @@
 
         });
 
-    // Create the chart
       var chart = new Highcharts.Chart(options);
+
     });
 
-		</script>
+  </script>
 	</head>
   <body>
     <div id="Content">
       <table cellpadding=0 cellspacing=0>
-      <tr><td><img src="../img/top_img.jpg"></td></tr>
+        <tr><td><img src="../img/top_img.jpg"></td></tr>
       </table>
       <table cellpadding=0 cellspacing=2>
-      <tr>
-        <td><a href="javascript:chartReset()"><img src="../img/reset.gif"></a></td>
+        <tr>
+          <td><a href="javascript:chartReset()"><img src="../img/reset.gif"></a></td>
+            <script language="JavaScript">
 
-        <script language="JavaScript">
+              if(moreDays == 1){
+                document.writeln('<td><a href="javascript:switchDay(\'back\')"><img src="../img/older.gif"></a></td>');
+              }
 
-          if(moreDays == 1){
-            document.writeln('<td><a href="javascript:switchDay(\'back\')"><img src="../img/older.gif"></a></td>');
-          }
+              if(sessionStorage.getItem("dayCount") != "0") {
+                document.writeln('<td><a href="javascript:switchDay(\'fwd\')"><img src="../img/newer.gif"></a></td>');
+              }
 
-          if(sessionStorage.getItem("dayCount") != "0") {
-            document.writeln('<td><a href="javascript:switchDay(\'fwd\')"><img src="../img/newer.gif"></a></td>');
-          }
+              document.writeln("<td width=100% align=right>");
+              document.writeln("<img src='../img/select.gif' align='middle'>");
+              document.writeln(RptOptions);
+              document.writeln("</td>");
 
-          document.writeln("<td width=100% align=right>");
-          document.writeln("<img src='../img/select.gif' align='middle'>");
-          document.writeln(RptOptions);
-          document.writeln("</td>");
-
-        </script>
-      </tr>
+            </script>
+        </tr>
       </table>
-      
       <div id="container" style="width: 800px; height: 400px; margin: 0 auto"></div>
     </div>
 	</body>

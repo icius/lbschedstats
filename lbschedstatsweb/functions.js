@@ -64,3 +64,11 @@ function switchDay(direction) {
   location.reload(true);
 }
 
+
+function chartReset() {
+
+  sessionStorage.setItem("dayCount", 0);
+  location.reload(true);
+
+}
+
