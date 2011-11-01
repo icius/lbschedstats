@@ -6,6 +6,7 @@ use warnings;
 use DBI;
 
 my $dbh;
+my $module_name;
 my $sth;
 my $sql;
 my %hour_created_hash;
@@ -27,17 +28,21 @@ $dbh = DBI->connect("DBI:mysql:database=$CFG::CFG{'mysql_db'};host=$CFG::CFG{'my
 
 my @hours = ("00", "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23");
 
+################################################################################
 # Module - Daily Block Activity By Hour
+################################################################################
 
 print "Running 'Daily Block Activity By Hour' Module...\n";
 
-if ($CFG::CFG{'modules'}{'daily_block_activity_by_hour'} == 1) {
-  
-  $option_js .= "<option value='daily_block_activity_by_hour.htm'>Daily Block Activity by Hour</option>";  
+$module_name = 'daily_block_activity_by_hour'; 
 
-  if(! -d $CFG::CFG{'www_directory'}."/lbschedstatsweb/data/daily_block_activity_by_hour") 
+if ($CFG::CFG{'modules'}{$module_name} == 1) {
+  
+  $option_js .= "<option value='".$module_name.".htm'>Daily Block Activity by Hour</option>";  
+
+  if(! -d $CFG::CFG{'www_directory'}."/lbschedstatsweb/data/$module_name") 
   { 
-    mkdir $CFG::CFG{'www_directory'}."/lbschedstatsweb/data/daily_block_activity_by_hour" or die $!;
+    mkdir $CFG::CFG{'www_directory'}."/lbschedstatsweb/data/$module_name" or die $!;
   }
 
   %hour_created_hash = map { $_ => 0 } @hours;
@@ -52,9 +57,9 @@ if ($CFG::CFG{'modules'}{'daily_block_activity_by_hour'} == 1) {
   $sth = $dbh->prepare($sql);
   $sth->execute();
 
-  print "Writing to file:\n $CFG::CFG{'www_directory'}/lbschedstatsweb/data/daily_block_activity_by_hour/daily_block_activity_by_hour_".getTodayStamp().".csv\n";
+  print "Writing to file:\n $CFG::CFG{'www_directory'}/lbschedstatsweb/data/$module_name/".$module_name."_".getTodayStamp().".csv\n";
 
-  open OUTFILE, ">", $CFG::CFG{'www_directory'}."/lbschedstatsweb/data/daily_block_activity_by_hour/daily_block_activity_by_hour_".getTodayStamp().".csv" or die $!;
+  open OUTFILE, ">", $CFG::CFG{'www_directory'}."/lbschedstatsweb/data/$module_name/".$module_name."_".getTodayStamp().".csv" or die $!;
 
   print OUTFILE "$CFG::CFG{'world_name'},".getToday()."\n";
   print OUTFILE "Categories,00,01,02,03,04,05,06,07,08,09,10,11,12,13,14,15,16,17,18,19,20,21,22,23\n";
@@ -75,6 +80,54 @@ if ($CFG::CFG{'modules'}{'daily_block_activity_by_hour'} == 1) {
   }
 
   print OUTFILE "$created_line\n$destroyed_line";
+
+  close OUTFILE;
+}
+
+################################################################################
+# Module - Daily Top Ten User Block Activity
+################################################################################
+
+print "Running 'Daily Top Ten User Block Activity' Module...\n";
+
+$module_name = 'daily_top_ten_user_block_activity'; 
+
+if ($CFG::CFG{'modules'}{$module_name} == 1) {
+  
+  $option_js .= "<option value='".$module_name.".htm'>Daily Top Ten User Block Activity</option>";  
+
+  if(! -d $CFG::CFG{'www_directory'}."/lbschedstatsweb/data/$module_name") 
+  { 
+    mkdir $CFG::CFG{'www_directory'}."/lbschedstatsweb/data/$module_name" or die $!;
+  }
+
+  $sql = 'select count(type) created, playername from `lb-'.$CFG::CFG{'world_name'}.'`, `lb-players` where type > 0 AND `lb-players`.playerid = `lb-'.$CFG::CFG{'world_name'}.'`.playerid group by playername order by created desc limit 10';
+
+  print "Executing Query:\n";
+
+  print $sql."\n";
+
+  $sth = $dbh->prepare($sql);
+  $sth->execute();
+
+  print "Writing to file:\n $CFG::CFG{'www_directory'}/lbschedstatsweb/data/$module_name/".$module_name."_".getTodayStamp().".csv\n";
+
+  open OUTFILE, ">", $CFG::CFG{'www_directory'}."/lbschedstatsweb/data/$module_name/".$module_name."_".getTodayStamp().".csv" or die $!;
+
+  print OUTFILE "$CFG::CFG{'world_name'},".getToday()."\n";
+  print OUTFILE "Categories";
+
+  my $created_line = "Created";
+
+  while (my ($created, $playername) = $sth->fetchrow_array())
+  {
+
+    print OUTFILE ",$playername";
+    $created_line .= ",$created";
+
+  }
+
+  print OUTFILE "\n$created_line";
 
   close OUTFILE;
 }

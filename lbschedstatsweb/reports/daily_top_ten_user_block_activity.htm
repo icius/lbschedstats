@@ -1,0 +1,265 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>LB SchedStats</title>
+      
+    <link rel="stylesheet" type="text/css" href="../css/styles.css" />
+
+    <script type="text/javascript" src="../functions.js"></script>
+    <script type="text/javascript" src="../options.js"></script>
+		
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
+		<script type="text/javascript" src="../../highcharts/js/highcharts.js"></script>
+		
+		<script type="text/javascript">
+
+      var rptModule = "daily_top_ten_user_block_activity";
+
+      if(!sessionStorage.getItem("dayCount")) {
+        sessionStorage.setItem("dayCount", 0);
+      }
+
+      var moreDays = 0;
+
+      function setMoreDays(flag) {
+        moreDays = flag;
+      }
+
+      myDateFormat = formatDate(sessionStorage.getItem("dayCount"));
+      nextDateFormat = formatDate(sessionStorage.getItem("dayCount") - 1);
+
+      $.ajax({
+        url:'../data/' + rptModule + '/' + rptModule + '_' + nextDateFormat + '.csv',
+        type:'HEAD',
+        async: false,
+        success:
+          function(){
+            setMoreDays(1);
+          }
+      });
+
+      // Created Graph
+
+      var options1 = {
+
+        chart: {
+          renderTo: 'created',
+          defaultSeriesType: 'bar'
+        },
+
+        title: {
+          text: 'Top 10 Creators' 
+        },
+
+        subtitle: {
+          text: '' 
+        },
+
+        xAxis: {
+          categories: [] 
+        },
+
+        yAxis: {
+          min: 0,
+          title: {
+            text: 'Block Count'
+          }
+        },
+
+        legend: {
+          layout: 'horizontal',
+          backgroundColor: '#FFFFFF',
+          shadow: true
+        },
+
+        tooltip: {
+          formatter: function() {
+            return ''+ this.y;
+          }
+        },
+        plotoptions1: {
+          column: {
+            pointPadding: 0.2,
+            borderWidth: 0
+          }
+        },
+
+        series: []
+
+      };
+
+      $.get('../data/' + rptModule + '/' + rptModule + '_' + myDateFormat + '.csv', function(data) {
+
+        var lines = data.split('\n');
+
+        $.each(lines, function(lineNo, line) {
+          var items = line.split(',');
+
+          if (lineNo == 0) {
+            $.each(items, function(itemNo, item) {
+              if (itemNo == 0) options1.title.text = 'Top 10 Creators (' + item + ')';
+              if (itemNo == 1) options1.subtitle.text = item;
+            });
+          }
+
+          else if (lineNo == 1) {
+            $.each(items, function(itemNo, item) {
+              if (itemNo > 0) options1.xAxis.categories.push(item);
+            });
+          }
+
+          else {
+            var series = {
+              data: []
+            };
+            $.each(items, function(itemNo, item) {
+              if (itemNo == 0) {
+                series.name = item;
+              } else {
+                series.data.push(parseFloat(item));
+              }
+            });
+
+            options1.series.push(series);
+
+          }
+
+        });
+
+      var chart1 = new Highcharts.Chart(options1);
+
+    });
+
+      // Created Graph
+
+      var options2 = {
+
+        chart: {
+          renderTo: 'destroyed',
+          defaultSeriesType: 'bar'
+        },
+
+        title: {
+          text: 'Top 10 Destroyers' 
+        },
+
+        subtitle: {
+          text: '' 
+        },
+
+        xAxis: {
+          categories: [] 
+        },
+
+        yAxis: {
+          min: 0,
+          title: {
+            text: 'Block Count'
+          }
+        },
+
+        legend: {
+          layout: 'horizontal',
+          backgroundColor: '#FFFFFF',
+          shadow: true
+        },
+
+        tooltip: {
+          formatter: function() {
+            return ''+ this.y;
+          }
+        },
+        plotoptions2: {
+          column: {
+            pointPadding: 0.2,
+            borderWidth: 0
+          }
+        },
+
+        series: []
+
+      };
+
+
+
+
+      $.get('../data/' + rptModule + '/' + rptModule + '_' + myDateFormat + '.csv', function(data) {
+
+        var lines = data.split('\n');
+
+        $.each(lines, function(lineNo, line) {
+          var items = line.split(',');
+
+          if (lineNo == 0) {
+            $.each(items, function(itemNo, item) {
+              if (itemNo == 0) options2.title.text = 'Top 10 Destroyers (' + item + ')';
+              if (itemNo == 1) options2.subtitle.text = item;
+            });
+          }
+
+          else if (lineNo == 1) {
+            $.each(items, function(itemNo, item) {
+              if (itemNo > 0) options2.xAxis.categories.push(item);
+            });
+          }
+
+          else {
+            var series = {
+              data: []
+            };
+            $.each(items, function(itemNo, item) {
+              if (itemNo == 0) {
+                series.name = item;
+              } else {
+                series.data.push(parseFloat(item));
+              }
+            });
+
+            options2.series.push(series);
+
+          }
+
+        });
+
+      var chart2 = new Highcharts.Chart(options2);
+
+    });
+
+
+
+  </script>
+	</head>
+  <body>
+    <div id="Content">
+      <table cellpadding=0 cellspacing=0>
+        <tr><td><img src="../img/top_img.jpg"></td></tr>
+      </table>
+      <table cellpadding=0 cellspacing=2>
+        <tr>
+          <td><a href="javascript:chartReset()"><img src="../img/reset.gif"></a></td>
+            <script language="JavaScript">
+
+              if(moreDays == 1){
+                document.writeln('<td><a href="javascript:switchDay(\'back\')"><img src="../img/older.gif"></a></td>');
+              }
+
+              if(sessionStorage.getItem("dayCount") != "0") {
+                document.writeln('<td><a href="javascript:switchDay(\'fwd\')"><img src="../img/newer.gif"></a></td>');
+              }
+
+              document.writeln("<td width=100% align=right>");
+              document.writeln("<img src='../img/select.gif' align='middle'>");
+              document.writeln(RptOptions);
+              document.writeln("</td>");
+
+            </script>
+        </tr>
+      </table>
+      <div id="created" style="width: 800px; height: 400px; margin: 0 auto"></div>
+      <br>
+      <div id="destroyed" style="width: 800px; height: 400px; margin: 0 auto"></div>
+      <br>
+    </div>
+	</body>
+</html>
