@@ -37,37 +37,6 @@
           }
       });
 
-      if(!sessionStorage.getItem("dayCount")) {
-        sessionStorage.setItem("dayCount", 0);
-      }
-
-      function switchDay(direction) {
-
-        var sessionDay = parseInt(sessionStorage.getItem("dayCount"));
-
-        if(direction == "back") {
-
-         sessionDay = sessionDay + 1;
-         sessionStorage.setItem("dayCount", sessionDay);
-
-        }
-
-        if(direction == "fwd") {
-
-          sessionDay = sessionDay - 1;
-
-          if(sessionDay < 0) {
-        
-            sessionDay = 0;
-
-          }
-
-          sessionStorage.setItem("dayCount", sessionDay);
-        }
-
-        location.reload(true);
-
-      }
 
       function chartReset() {
 
@@ -76,8 +45,6 @@
 
       }
 
-
-      var today = new Date();
 		
       var options = {
 
@@ -91,7 +58,7 @@
 					},
 
           subtitle: {
-            text: today 
+            text: '' 
           },
 
 					xAxis: {

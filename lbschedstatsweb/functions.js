@@ -36,3 +36,31 @@ function formatDate(offset) {
   return myDate.getFullYear().toString() + myDateMonth + myDateDay;
 
 }
+
+function switchDay(direction) {
+
+  var sessionDay = parseInt(sessionStorage.getItem("dayCount"));
+
+  if(direction == "back") {
+
+    sessionDay = sessionDay + 1;
+    sessionStorage.setItem("dayCount", sessionDay);
+
+  }
+
+  if(direction == "fwd") {
+
+    sessionDay = sessionDay - 1;
+
+    if(sessionDay < 0) {
+
+      sessionDay = 0;
+
+    }
+
+    sessionStorage.setItem("dayCount", sessionDay);
+  }
+
+  location.reload(true);
+}
+
