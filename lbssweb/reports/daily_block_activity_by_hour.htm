@@ -14,7 +14,8 @@
 		
 		<script type="text/javascript">
 
-      var rptModule = "daily_top_ten_user_block_activity";
+      var rptModule = "daily_block_activity_by_hour";
+
 
       if(!sessionStorage.getItem("dayCount")) {
         sessionStorage.setItem("dayCount", 0);
@@ -27,10 +28,10 @@
       }
 
       myDateFormat = formatDate(sessionStorage.getItem("dayCount"));
-      nextDateFormat = formatDate(sessionStorage.getItem("dayCount") - 1);
+      nextDateFormat = formatDate(sessionStorage.getItem("dayCount") + 1);
 
       $.ajax({
-        url:'../data/' + rptModule + '/' + rptModule + '_created_' + nextDateFormat + '.csv',
+        url:'../data/' + rptModule + '/' + rptModule + '_' + nextDateFormat + '.csv',
         type:'HEAD',
         async: false,
         success:
@@ -39,17 +40,15 @@
           }
       });
 
-      // Created Graph
-
-      var options1 = {
+      var options = {
 
         chart: {
-          renderTo: 'created',
-          defaultSeriesType: 'bar'
+          renderTo: 'container',
+          defaultSeriesType: 'column'
         },
 
         title: {
-          text: 'Top 10 Creators' 
+          text: 'Block Activity By Hour'
         },
 
         subtitle: {
@@ -78,7 +77,7 @@
             return ''+ this.y;
           }
         },
-        plotoptions1: {
+        plotOptions: {
           column: {
             pointPadding: 0.2,
             borderWidth: 0
@@ -89,7 +88,7 @@
 
       };
 
-      $.get('../data/' + rptModule + '/' + rptModule + '_created_' + myDateFormat + '.csv', function(data) {
+      $.get('../data/' + rptModule + '/' + rptModule + '_' + myDateFormat + '.csv', function(data) {
 
         var lines = data.split('\n');
 
@@ -98,14 +97,14 @@
 
           if (lineNo == 0) {
             $.each(items, function(itemNo, item) {
-              if (itemNo == 0) options1.title.text = 'Top 10 Creators (' + item + ')';
-              if (itemNo == 1) options1.subtitle.text = item;
+              if (itemNo == 0) options.title.text = 'Block Activity by Hour (' + item + ')';
+              if (itemNo == 1) options.subtitle.text = item;
             });
           }
 
           else if (lineNo == 1) {
             $.each(items, function(itemNo, item) {
-              if (itemNo > 0) options1.xAxis.categories.push(item);
+              if (itemNo > 0) options.xAxis.categories.push(item);
             });
           }
 
@@ -116,119 +115,20 @@
             $.each(items, function(itemNo, item) {
               if (itemNo == 0) {
                 series.name = item;
-                series.color = '#89a54e';
               } else {
                 series.data.push(parseFloat(item));
               }
             });
 
-            options1.series.push(series);
+            options.series.push(series);
 
           }
 
         });
 
-      var chart1 = new Highcharts.Chart(options1);
+      var chart = new Highcharts.Chart(options);
 
     });
-
-      // Created Graph
-
-      var options2 = {
-
-        chart: {
-          renderTo: 'destroyed',
-          defaultSeriesType: 'bar'
-        },
-
-        title: {
-          text: 'Top 10 Destroyers' 
-        },
-
-        subtitle: {
-          text: '' 
-        },
-
-        xAxis: {
-          categories: [] 
-        },
-
-        yAxis: {
-          min: 0,
-          title: {
-            text: 'Block Count'
-          }
-        },
-
-        legend: {
-          layout: 'horizontal',
-          backgroundColor: '#FFFFFF',
-          shadow: true
-        },
-
-        tooltip: {
-          formatter: function() {
-            return ''+ this.y;
-          }
-        },
-        plotoptions2: {
-          column: {
-            pointPadding: 0.2,
-            borderWidth: 0
-          }
-        },
-
-        series: []
-
-      };
-
-
-
-
-      $.get('../data/' + rptModule + '/' + rptModule + '_destroyed_' + myDateFormat + '.csv', function(data) {
-
-        var lines = data.split('\n');
-
-        $.each(lines, function(lineNo, line) {
-          var items = line.split(',');
-
-          if (lineNo == 0) {
-            $.each(items, function(itemNo, item) {
-              if (itemNo == 0) options2.title.text = 'Top 10 Destroyers (' + item + ')';
-              if (itemNo == 1) options2.subtitle.text = item;
-            });
-          }
-
-          else if (lineNo == 1) {
-            $.each(items, function(itemNo, item) {
-              if (itemNo > 0) options2.xAxis.categories.push(item);
-            });
-          }
-
-          else {
-            var series = {
-              data: []
-            };
-            $.each(items, function(itemNo, item) {
-              if (itemNo == 0) {
-                series.name = item;
-                series.color = '#aa4643';
-              } else {
-                series.data.push(parseFloat(item));
-              }
-            });
-
-            options2.series.push(series);
-
-          }
-
-        });
-
-      var chart2 = new Highcharts.Chart(options2);
-
-    });
-
-
 
   </script>
 	</head>
@@ -258,10 +158,7 @@
             </script>
         </tr>
       </table>
-      <div id="created" style="width: 800px; height: 400px; margin: 0 auto"></div>
-      <br>
-      <div id="destroyed" style="width: 800px; height: 400px; margin: 0 auto"></div>
-      <br>
+      <div id="container" style="width: 800px; height: 400px; margin: 0 auto"></div>
     </div>
 	</body>
 </html>
