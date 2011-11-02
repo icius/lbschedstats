@@ -88,46 +88,55 @@
 
       };
 
-      $.get('../data/' + rptModule + '/' + rptModule + '_' + myDateFormat + '.csv', function(data) {
 
-        var lines = data.split('\n');
+      $.ajax({
 
-        $.each(lines, function(lineNo, line) {
-          var items = line.split(',');
+        url:'../data/' + rptModule + '/' + rptModule + '_' + myDateFormat + '.csv',
+        type: 'GET',
+        cache: false,
+        success:
+          function(data) {
 
-          if (lineNo == 0) {
-            $.each(items, function(itemNo, item) {
-              if (itemNo == 0) options.title.text = 'Block Activity by Hour (' + item + ')';
-              if (itemNo == 1) options.subtitle.text = item;
-            });
-          }
+            var lines = data.split('\n');
 
-          else if (lineNo == 1) {
-            $.each(items, function(itemNo, item) {
-              if (itemNo > 0) options.xAxis.categories.push(item);
-            });
-          }
+            $.each(lines, function(lineNo, line) {
+              var items = line.split(',');
 
-          else {
-            var series = {
-              data: []
-            };
-            $.each(items, function(itemNo, item) {
-              if (itemNo == 0) {
-                series.name = item;
-              } else {
-                series.data.push(parseFloat(item));
+              if (lineNo == 0) {
+                $.each(items, function(itemNo, item) {
+                  if (itemNo == 0) options.title.text = 'Block Activity by Hour (' + item + ')';
+                  if (itemNo == 1) options.subtitle.text = item;
+                });
               }
+
+              else if (lineNo == 1) {
+                $.each(items, function(itemNo, item) {
+                  if (itemNo > 0) options.xAxis.categories.push(item);
+                });
+              }
+
+              else {
+                var series = {
+                  data: []
+                };
+                $.each(items, function(itemNo, item) {
+                  if (itemNo == 0) {
+                    series.name = item;
+                  } else {
+                    series.data.push(parseFloat(item));
+                  }
+                });
+
+                options.series.push(series);
+
+              }
+
             });
 
-            options.series.push(series);
+          var chart = new Highcharts.Chart(options);
 
-          }
-
-        });
-
-      var chart = new Highcharts.Chart(options);
-
+        }
+    
     });
 
   </script>

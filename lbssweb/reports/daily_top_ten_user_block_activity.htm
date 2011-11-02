@@ -89,48 +89,55 @@
 
       };
 
-      $.get('../data/' + rptModule + '/' + rptModule + '_created_' + myDateFormat + '.csv', function(data) {
+      $.ajax({
+        url:'../data/' + rptModule + '/' + rptModule + '_created_' + myDateFormat + '.csv',
+        type: 'GET',
+        cache: false,
+        success:
+          function(data) {
 
-        var lines = data.split('\n');
+            var lines = data.split('\n');
 
-        $.each(lines, function(lineNo, line) {
-          var items = line.split(',');
+            $.each(lines, function(lineNo, line) {
+              var items = line.split(',');
 
-          if (lineNo == 0) {
-            $.each(items, function(itemNo, item) {
-              if (itemNo == 0) options1.title.text = 'Top 10 Creators (' + item + ')';
-              if (itemNo == 1) options1.subtitle.text = item;
-            });
-          }
-
-          else if (lineNo == 1) {
-            $.each(items, function(itemNo, item) {
-              if (itemNo > 0) options1.xAxis.categories.push(item);
-            });
-          }
-
-          else {
-            var series = {
-              data: []
-            };
-            $.each(items, function(itemNo, item) {
-              if (itemNo == 0) {
-                series.name = item;
-                series.color = '#89a54e';
-              } else {
-                series.data.push(parseFloat(item));
+              if (lineNo == 0) {
+                $.each(items, function(itemNo, item) {
+                  if (itemNo == 0) options1.title.text = 'Top 10 Creators (' + item + ')';
+                  if (itemNo == 1) options1.subtitle.text = item;
+                });
               }
+
+              else if (lineNo == 1) {
+                $.each(items, function(itemNo, item) {
+                  if (itemNo > 0) options1.xAxis.categories.push(item);
+                });
+              }
+
+              else {
+                var series = {
+                  data: []
+                };
+                $.each(items, function(itemNo, item) {
+                  if (itemNo == 0) {
+                    series.name = item;
+                    series.color = '#89a54e';
+                  } else {
+                    series.data.push(parseFloat(item));
+                  }
+                });
+
+                options1.series.push(series);
+
+              }
+
             });
 
-            options1.series.push(series);
+          var chart1 = new Highcharts.Chart(options1);
 
-          }
+        }
 
-        });
-
-      var chart1 = new Highcharts.Chart(options1);
-
-    });
+      });
 
       // Created Graph
 
@@ -182,53 +189,54 @@
 
       };
 
+      $.ajax({
+        url:'../data/' + rptModule + '/' + rptModule + '_destroyed_' + myDateFormat + '.csv',
+        type: 'GET',
+        cache: false,
+        success:
+          function(data) {
 
+            var lines = data.split('\n');
 
+            $.each(lines, function(lineNo, line) {
+              var items = line.split(',');
 
-      $.get('../data/' + rptModule + '/' + rptModule + '_destroyed_' + myDateFormat + '.csv', function(data) {
-
-        var lines = data.split('\n');
-
-        $.each(lines, function(lineNo, line) {
-          var items = line.split(',');
-
-          if (lineNo == 0) {
-            $.each(items, function(itemNo, item) {
-              if (itemNo == 0) options2.title.text = 'Top 10 Destroyers (' + item + ')';
-              if (itemNo == 1) options2.subtitle.text = item;
-            });
-          }
-
-          else if (lineNo == 1) {
-            $.each(items, function(itemNo, item) {
-              if (itemNo > 0) options2.xAxis.categories.push(item);
-            });
-          }
-
-          else {
-            var series = {
-              data: []
-            };
-            $.each(items, function(itemNo, item) {
-              if (itemNo == 0) {
-                series.name = item;
-                series.color = '#aa4643';
-              } else {
-                series.data.push(parseFloat(item));
+              if (lineNo == 0) {
+                $.each(items, function(itemNo, item) {
+                  if (itemNo == 0) options2.title.text = 'Top 10 Destroyers (' + item + ')';
+                  if (itemNo == 1) options2.subtitle.text = item;
+                });
               }
+
+              else if (lineNo == 1) {
+                $.each(items, function(itemNo, item) {
+                  if (itemNo > 0) options2.xAxis.categories.push(item);
+                });
+              }
+
+              else {
+                var series = {
+                  data: []
+                };
+                $.each(items, function(itemNo, item) {
+                  if (itemNo == 0) {
+                    series.name = item;
+                    series.color = '#aa4643';
+                  } else {
+                    series.data.push(parseFloat(item));
+                  }
+                });
+
+                options2.series.push(series);
+
+              }
+
             });
 
-            options2.series.push(series);
+            var chart2 = new Highcharts.Chart(options2);
 
           }
-
-        });
-
-      var chart2 = new Highcharts.Chart(options2);
-
-    });
-
-
+      });
 
   </script>
 	</head>
