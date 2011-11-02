@@ -46,22 +46,22 @@ Installation
   lbcollector.pl
   config.cfg
 
-2. Copy the lbschedstatsweb directory to your webserver directory (example:  /var/www/).  Please ensure that the lbschedstatsweb directory is at the same directory level as the highcharts directory you created when installing Highcharts.
+2. Copy the lbssweb directory to your webserver directory (example:  /var/www/).  Please ensure that the lbssweb directory is at the same directory level as the highcharts directory you created when installing Highcharts.
 
   Example:
 
-    /var/www/lbschedstatsweb
+    /var/www/lbssweb
     /var/www/highcharts
 
 3. Edit the config.cfg file copied in step 3.  Follow the instructions in the file to properly configure your copy of LBSchedStats.
 
 4. Schedule the lbcollector.pl script to run via cron (or your scheduler of choice) at your desired interval.  Once an hour is a good starting point.
 
-5. Access the main LBSchedStats page on your web server using a browser.  The URL depends on where you installed lbschedstatsweb in step 4.
+5. Access the main LBSchedStats page on your web server using a browser.  The URL depends on where you installed lbssweb in step 4.
 
   Example:
 
-    http://yourserver/lbschedstatsweb/index.htm
+    http://yourserver/lbssweb/index.htm
 
 
 
