@@ -57,9 +57,18 @@ if ($CFG::CFG{'modules'}{$module_name} == 1) {
   $sth = $dbh->prepare($sql);
   $sth->execute();
 
-  print "Writing to file:\n $CFG::CFG{'www_directory'}/lbschedstatsweb/data/$module_name/".$module_name."_".getTodayStamp().".csv\n";
 
-  open OUTFILE, ">", $CFG::CFG{'www_directory'}."/lbschedstatsweb/data/$module_name/".$module_name."_".getTodayStamp().".csv" or die $!;
+  my $output_file = "$CFG::CFG{'www_directory'}/lbschedstatsweb/data/$module_name/".$module_name."_".getTodayStamp().".csv";
+
+  my $new_day_flag = 0;
+
+  unless (-e $output_file) {
+    $new_day_flag = 1;
+  }
+
+  print "Writing to file:\n $output_file\n";
+
+  open OUTFILE, ">", $output_file or die $!;
 
   print OUTFILE "$CFG::CFG{'world_name'},".getToday()."\n";
   print OUTFILE "Categories,00,01,02,03,04,05,06,07,08,09,10,11,12,13,14,15,16,17,18,19,20,21,22,23\n";
@@ -82,6 +91,53 @@ if ($CFG::CFG{'modules'}{$module_name} == 1) {
   print OUTFILE "$created_line\n$destroyed_line";
 
   close OUTFILE;
+
+  # Finishing up yesterday's stats if this is a new day
+
+  if ($new_day_flag == 1) {
+  
+    my $yesterday_file = "$CFG::CFG{'www_directory'}/lbschedstatsweb/data/$module_name/".$module_name."_".getYesterdayStamp().".csv";
+  
+    if (-e $yesterday_file) {
+
+      $sql = 'SELECT extract(hour from date) hour, sum(if (type > 0,1,0)) created,  sum(if (type = 0,1,0)) destroyed FROM `lb-'.$CFG::CFG{'world_name'}.'` where date < curdate() AND date > DATE_SUB(CURDATE(), INTERVAL 1 DAY) GROUP BY hour'; 
+
+    print "Finishing Stats for Yesterday...\n";
+    print "Executing Query:\n";
+
+    print $sql."\n";
+
+    $sth = $dbh->prepare($sql);
+    $sth->execute();
+
+    print "Writing to file:\n $output_file\n";
+
+    open OUTFILE, ">", $yesterday_file or die $!;
+
+    print OUTFILE "$CFG::CFG{'world_name'},".getToday()."\n";
+    print OUTFILE "Categories,00,01,02,03,04,05,06,07,08,09,10,11,12,13,14,15,16,17,18,19,20,21,22,23\n";
+
+    while (my ($hour, $created, $destroyed) = $sth->fetchrow_array())
+    {
+      $hour_created_hash{$hour} = $created;
+      $hour_destroyed_hash{$hour} = $destroyed;
+    }
+
+    my $created_line = "Created";
+    my $destroyed_line = "Destroyed";
+
+    for my $array_hour(@hours) 
+    {
+      $created_line .= ",$hour_created_hash{$array_hour}";
+      $destroyed_line .= ",$hour_destroyed_hash{$array_hour}";
+    }
+
+    print OUTFILE "$created_line\n$destroyed_line";
+
+    close OUTFILE;
+
+    }
+  }
 }
 
 ################################################################################
@@ -216,6 +272,20 @@ sub daySubtract {
 sub getTodayStamp {
 
   my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime(time);
+  $year=$year+1900;
+  $mon=$mon+1;
+  if($mon<10)
+  {$mon="0$mon";}
+  if($mday<10)
+  {$mday="0$mday";}
+  my $mydate=$year.$mon.$mday;
+  return $mydate;
+
+}
+
+sub getYesterdayStamp {
+
+  my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime(time - 86400);
   $year=$year+1900;
   $mon=$mon+1;
   if($mon<10)
