@@ -255,6 +255,8 @@ if ($CFG::CFG{'modules'}{'iconomy'}{$module_name} == 1) {
 
   if (-e $output_file) {
 
+    print "I found the file!\n";
+
     open INFILE, $output_file or die $!;
 
     my $line_count = 0;
@@ -263,12 +265,16 @@ if ($CFG::CFG{'modules'}{'iconomy'}{$module_name} == 1) {
 
       chomp();
 
-      if($line_count == 3) {         
-        my @avg_data = split /,/, $_;
+      if($line_count == 2) {         
+
+        print "$_\n";
+
+        @total_data = split /,/, $_;
       }
 
-      if($line_count == 4) {         
-        my @total_data = split /,/, $_;
+      if($line_count == 3) {         
+        print "$_\n";
+        @avg_data = split /,/, $_;
       }
 
       $line_count++;
