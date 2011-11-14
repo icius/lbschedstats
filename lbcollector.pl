@@ -32,11 +32,11 @@ my @hours = ("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12",
 # Module - Daily Block Activity By Hour
 ################################################################################
 
-print "Running 'Daily Block Activity By Hour' Module...\n";
-
 $module_name = 'daily_block_activity_by_hour'; 
 
-if ($CFG::CFG{'modules'}{$module_name} == 1) {
+if ($CFG::CFG{'modules'}{'logblock'}{$module_name} == 1) {
+
+  print "Running 'Daily Block Activity By Hour' Module...\n";
   
   $option_js .= "<option value='".$module_name.".htm'>Daily Block Activity by Hour</option>";  
 
@@ -144,11 +144,11 @@ if ($CFG::CFG{'modules'}{$module_name} == 1) {
 # Module - Daily Top Ten User Block Activity
 ################################################################################
 
-print "Running 'Daily Top Ten User Block Activity' Module...\n";
-
 $module_name = 'daily_top_ten_user_block_activity'; 
 
-if ($CFG::CFG{'modules'}{$module_name} == 1) {
+if ($CFG::CFG{'modules'}{'logblock'}{$module_name} == 1) {
+
+  print "Running 'Daily Top Ten User Block Activity' Module...\n";
   
   $option_js .= "<option value='".$module_name.".htm'>Daily Top Ten User Block Activity</option>";  
 
@@ -220,6 +220,81 @@ if ($CFG::CFG{'modules'}{$module_name} == 1) {
 
 }
 
+################################################################################
+# Module - Daily iConomy Stats By Hour
+################################################################################
+
+$module_name = 'daily_iconomy_stats_by_hour'; 
+
+if ($CFG::CFG{'modules'}{'iconomy'}{$module_name} == 1) {
+
+  print "Running 'Daily iConomy Stats By Hour' Module...\n";
+  
+  $option_js .= "<option value='".$module_name.".htm'>Daily iConomy Stats by Hour</option>";  
+
+  if(! -d $CFG::CFG{'www_directory'}."/lbschedstatsweb/data/$module_name") 
+  { 
+    mkdir $CFG::CFG{'www_directory'}."/lbschedstatsweb/data/$module_name" or die $!;
+  }
+
+  my $current_hour = getTodayHour();
+
+  $sql = 'SELECT ROUND(AVG(balance)) avg_balance, ROUND(SUM(balance)) total_money FROM iConomy;'; 
+
+  print "Executing Query:\n";
+
+  print $sql."\n";
+
+  $sth = $dbh->prepare($sql);
+  $sth->execute();
+
+  my $output_file = "$CFG::CFG{'www_directory'}/lbschedstatsweb/data/$module_name/".$module_name."_".getTodayStamp().".csv";
+
+  my @avg_data = ("Avg. Account Size",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0);
+  my @total_data = ("Total Money",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0);
+
+  if (-e $output_file) {
+
+    open INFILE, $output_file or die $!;
+
+    my $line_count = 0;
+
+    while(<INFILE>) {
+
+      chomp();
+
+      if($line_count == 3) {         
+        my @avg_data = split /,/, $_;
+      }
+
+      if($line_count == 4) {         
+        my @total_data = split /,/, $_;
+      }
+
+      $line_count++;
+    }
+
+    close INFILE;
+  }
+
+  print "Writing to file:\n $output_file\n";
+
+  open OUTFILE, ">", $output_file or die $!;
+
+  print OUTFILE "$CFG::CFG{'world_name'},".getToday()."\n";
+  print OUTFILE "Categories,00,01,02,03,04,05,06,07,08,09,10,11,12,13,14,15,16,17,18,19,20,21,22,23\n";
+
+  while (my ($avg_account, $total_money) = $sth->fetchrow_array()) {
+    $avg_data[$current_hour + 1] = $avg_account;        
+    $total_data[$current_hour + 1] = $total_money;        
+  }
+
+  print OUTFILE join(',', @total_data)."\n";
+  print OUTFILE join(',', @avg_data);
+
+  close OUTFILE;
+}
+
 # END of Modules
 
 $dbh->disconnect();
@@ -264,7 +339,7 @@ sub daySubtract {
   {$mon="0$mon";}
   if($mday<10)
   {$mday="0$mday";}
-  my $mydate="$mon/$mday/$year";
+  my $mydate = "$mon/$mday/$year";
   return $mydate;
 
 }
@@ -278,7 +353,7 @@ sub getTodayStamp {
   {$mon="0$mon";}
   if($mday<10)
   {$mday="0$mday";}
-  my $mydate=$year.$mon.$mday;
+  my $mydate = $year.$mon.$mday;
   return $mydate;
 
 }
@@ -292,7 +367,7 @@ sub getYesterdayStamp {
   {$mon="0$mon";}
   if($mday<10)
   {$mday="0$mday";}
-  my $mydate=$year.$mon.$mday;
+  my $mydate = $year.$mon.$mday;
   return $mydate;
 
 }
@@ -306,8 +381,23 @@ sub getToday {
   {$mon="0$mon";}
   if($mday<10)
   {$mday="0$mday";}
-  my $mydate="$year-$mon-$mday";
+  my $mydate = "$year-$mon-$mday";
   return $mydate;
 
 }
+
+sub getTodayHour {
+
+  my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime(time);
+  $year=$year+1900;
+  $mon=$mon+1;
+  if($mon<10)
+  {$mon="0$mon";}
+  if($mday<10)
+  {$mday="0$mday";}
+  my $mydate = $hour;
+  return $mydate;
+
+}
+
 

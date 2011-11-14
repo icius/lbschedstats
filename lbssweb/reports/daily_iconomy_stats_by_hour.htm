@@ -1,0 +1,205 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>LB SchedStats</title>
+      
+    <link rel="stylesheet" type="text/css" href="../css/styles.css" />
+
+    <script type="text/javascript" src="../functions.js"></script>
+    <script type="text/javascript" src="../options.js"></script>
+		
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
+		<script type="text/javascript" src="../../highcharts/js/highcharts.js"></script>
+		
+		<script type="text/javascript">
+
+      var rptModule = "daily_iconomy_stats_by_hour";
+
+
+      if(!sessionStorage.getItem("dayCount")) {
+        sessionStorage.setItem("dayCount", 0);
+      }
+
+      var moreDays = 0;
+
+      function setMoreDays(flag) {
+        moreDays = flag;
+      }
+
+      myDateFormat = formatDate(sessionStorage.getItem("dayCount"));
+      nextDateFormat = formatDate(sessionStorage.getItem("dayCount") + 1);
+
+      $.ajax({
+        url:'../data/' + rptModule + '/' + rptModule + '_' + nextDateFormat + '.csv',
+        type:'HEAD',
+        async: false,
+        success:
+          function(){
+            setMoreDays(1);
+          }
+      });
+
+      var options = {
+
+        chart: {
+          renderTo: 'container',
+          defaultSeriesType: 'column'
+        },
+
+        title: {
+          text: 'iConomy Stats By Hour'
+        },
+
+        subtitle: {
+          text: '' 
+        },
+
+        xAxis: {
+          categories: [] 
+        },
+
+        yAxis: [{
+          min: 0,
+          title: {
+            text: 'Total Money',
+            style: {
+              color: '#4572A7'
+            }
+          },
+          labels: {
+            style: {
+              color: '#4572A7'
+            }
+          },
+          opposite: true
+        },
+        {
+          min: 0,
+          title: {
+            text: 'Account Money',
+            style: {
+              color: '#89A54E'
+            }
+          },
+          labels: {
+            style: {
+              color: '#89A54E'
+            }
+          }
+        }],
+
+        legend: {
+          layout: 'horizontal',
+          backgroundColor: '#FFFFFF',
+          shadow: true
+        },
+
+        tooltip: {
+          formatter: function() {
+            return ''+ this.y;
+          }
+        },
+        plotOptions: {
+          column: {
+            pointPadding: 0.2,
+            borderWidth: 0
+          }
+        },
+
+        series: []
+
+      };
+
+
+      $.ajax({
+
+        url:'../data/' + rptModule + '/' + rptModule + '_' + myDateFormat + '.csv',
+        type: 'GET',
+        cache: false,
+        success:
+          function(data) {
+
+            var lines = data.split('\n');
+
+            $.each(lines, function(lineNo, line) {
+              var items = line.split(',');
+
+              if (lineNo == 0) {
+                $.each(items, function(itemNo, item) {
+                  if (itemNo == 0) options.title.text = 'iConomy Stats by Hour (' + item + ')';
+                  if (itemNo == 1) options.subtitle.text = item;
+                });
+              }
+
+              else if (lineNo == 1) {
+                $.each(items, function(itemNo, item) {
+                  if (itemNo > 0) options.xAxis.categories.push(item);
+                });
+              }
+
+              else {
+                var series = {
+                  data: []
+                };
+                if (lineNo == 3) {
+                  series.color = "#89A54E";
+                  series.type = 'spline';
+                  series.yAxis = 1;
+                }
+                else {
+                  series.type = 'column';
+                }
+
+                $.each(items, function(itemNo, item) {
+                  if (itemNo == 0) {
+                    series.name = item;
+                  } else {
+                    series.data.push(parseFloat(item));
+                  }
+                });
+
+                options.series.push(series);
+
+              }
+
+            });
+
+          var chart = new Highcharts.Chart(options);
+
+        }
+    
+    });
+
+  </script>
+	</head>
+  <body>
+    <div id="Content">
+      <table cellpadding=0 cellspacing=0>
+        <tr><td><img src="../img/top_img.jpg"></td></tr>
+      </table>
+      <table cellpadding=0 cellspacing=2>
+        <tr>
+          <td><a href="javascript:chartReset()"><img src="../img/reset.gif"></a></td>
+            <script language="JavaScript">
+
+              if(moreDays == 1){
+                document.writeln('<td><a href="javascript:switchDay(\'back\')"><img src="../img/older.gif"></a></td>');
+              }
+
+              if(sessionStorage.getItem("dayCount") != "0") {
+                document.writeln('<td><a href="javascript:switchDay(\'fwd\')"><img src="../img/newer.gif"></a></td>');
+              }
+
+              document.writeln("<td width=100% align=right>");
+              document.writeln("<img src='../img/select.gif' align='middle'>");
+              document.writeln(RptOptions);
+              document.writeln("</td>");
+
+            </script>
+        </tr>
+      </table>
+      <div id="container" style="width: 800px; height: 400px; margin: 0 auto"></div>
+    </div>
+	</body>
+</html>
