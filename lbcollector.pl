@@ -23,9 +23,6 @@ if (my $err = ReadCfg('config.cfg'))
 $option_js = "<select onchange='runReport(this)'>";
 $option_js .= "<option value='none' SELECTED>&lt;none&gt;</option>";
 
-$dbh = DBI->connect("DBI:mysql:database=$CFG::CFG{'mysql_db'};host=$CFG::CFG{'mysql_host'};port=$CFG::CFG{'mysql_port'}", $CFG::CFG{'mysql_usr'}, $CFG::CFG{'mysql_pwd'}
-             ) || die "Could not connect to database: $DBI::errstr";
-
 my @hours = ("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23");
 
 ################################################################################
@@ -35,6 +32,10 @@ my @hours = ("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12",
 $module_name = 'daily_block_activity_by_hour'; 
 
 if ($CFG::CFG{'modules'}{'logblock'}{$module_name} == 1) {
+
+  $dbh = DBI->connect("DBI:mysql:database=$CFG::CFG{'modules'}{'logblock'}{'lb_mysql_db'};host=$CFG::CFG{'modules'}{'logblock'}{'lb_mysql_host'};port=$CFG::CFG{'modules'}{'logblock'}{'lb_mysql_port'}", $CFG::CFG{'modules'}{'logblock'}{'lb_mysql_usr'}, $CFG::CFG{'modules'}{'logblock'}{'lb_mysql_pwd'}
+             ) || die "Could not connect to database: $DBI::errstr";
+
 
   print "Running 'Daily Block Activity By Hour' Module...\n";
   
@@ -138,6 +139,8 @@ if ($CFG::CFG{'modules'}{'logblock'}{$module_name} == 1) {
 
     }
   }
+
+  $dbh->disconnect();
 }
 
 ################################################################################
@@ -147,6 +150,10 @@ if ($CFG::CFG{'modules'}{'logblock'}{$module_name} == 1) {
 $module_name = 'daily_top_ten_user_block_activity'; 
 
 if ($CFG::CFG{'modules'}{'logblock'}{$module_name} == 1) {
+
+  $dbh = DBI->connect("DBI:mysql:database=$CFG::CFG{'modules'}{'logblock'}{'lb_mysql_db'};host=$CFG::CFG{'modules'}{'logblock'}{'lb_mysql_host'};port=$CFG::CFG{'modules'}{'logblock'}{'lb_mysql_port'}", $CFG::CFG{'modules'}{'logblock'}{'lb_mysql_usr'}, $CFG::CFG{'modules'}{'logblock'}{'lb_mysql_pwd'}
+             ) || die "Could not connect to database: $DBI::errstr";
+
 
   print "Running 'Daily Top Ten User Block Activity' Module...\n";
   
@@ -218,6 +225,7 @@ if ($CFG::CFG{'modules'}{'logblock'}{$module_name} == 1) {
 
   close OUTFILE;
 
+  $dbh->disconnect();
 }
 
 ################################################################################
@@ -227,6 +235,10 @@ if ($CFG::CFG{'modules'}{'logblock'}{$module_name} == 1) {
 $module_name = 'daily_iconomy_stats_by_hour'; 
 
 if ($CFG::CFG{'modules'}{'iconomy'}{$module_name} == 1) {
+
+  $dbh = DBI->connect("DBI:mysql:database=$CFG::CFG{'modules'}{'iconomy'}{'ic_mysql_db'};host=$CFG::CFG{'modules'}{'iconomy'}{'ic_mysql_host'};port=$CFG::CFG{'modules'}{'iconomy'}{'ic_mysql_port'}", $CFG::CFG{'modules'}{'iconomy'}{'ic_mysql_usr'}, $CFG::CFG{'modules'}{'iconomy'}{'ic_mysql_pwd'}
+             ) || die "Could not connect to database: $DBI::errstr";
+
 
   print "Running 'Daily iConomy Stats By Hour' Module...\n";
   
@@ -250,12 +262,10 @@ if ($CFG::CFG{'modules'}{'iconomy'}{$module_name} == 1) {
 
   my $output_file = "$CFG::CFG{'www_directory'}/lbschedstatsweb/data/$module_name/".$module_name."_".getTodayStamp().".csv";
 
+  my @total_data = ("Total $CFG::CFG{'modules'}{'iconomy'}{'major_currency'}",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0);
   my @avg_data = ("Avg. Account Size",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0);
-  my @total_data = ("Total Money",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0);
 
   if (-e $output_file) {
-
-    print "I found the file!\n";
 
     open INFILE, $output_file or die $!;
 
@@ -266,14 +276,10 @@ if ($CFG::CFG{'modules'}{'iconomy'}{$module_name} == 1) {
       chomp();
 
       if($line_count == 2) {         
-
-        print "$_\n";
-
         @total_data = split /,/, $_;
       }
 
       if($line_count == 3) {         
-        print "$_\n";
         @avg_data = split /,/, $_;
       }
 
@@ -295,22 +301,25 @@ if ($CFG::CFG{'modules'}{'iconomy'}{$module_name} == 1) {
     $total_data[$current_hour + 1] = $total_money;        
   }
 
+  $total_data[0] = "Total $CFG::CFG{'modules'}{'iconomy'}{'major_currency'}";
+
   print OUTFILE join(',', @total_data)."\n";
   print OUTFILE join(',', @avg_data);
 
   close OUTFILE;
+
+  $dbh->disconnect();
+
 }
 
 # END of Modules
 
-$dbh->disconnect();
-
 $option_js .= "</select>";
 
 open OUTFILE, ">", $CFG::CFG{'www_directory'}."/lbschedstatsweb/options.js" or die $!;
-print OUTFILE 'var RptOptions = "'.$option_js.'";';
+print OUTFILE 'var RptOptions = "'.$option_js.'";'."\n";
+print OUTFILE 'var MajorCurrency = "'.$CFG::CFG{'modules'}{'iconomy'}{'major_currency'}.'";'."\n";
 close OUTFILE;
-
 
 sub ReadCfg
 {
